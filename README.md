@@ -1,6 +1,6 @@
 # Chaibao_DigitaldeskPet
 
-柴宝是按照片制作的 ChatGPT 桌宠，保留了黑色短毛、金色眼睛和略圆的脸颊。Windows 版会在上次碰触后五分钟揣手、十分钟蜷睡，鼠标移过或点击就坐起来。双击桌面的「柴宝桌宠」启动。
+柴宝是按照片制作的 ChatGPT 桌宠，保留了黑色短毛、金色眼睛和略圆的脸颊。Windows 版会在上次碰触后五分钟揣手、十分钟蜷睡，碰他会醒来。坐着时摸他，会随机舔爪、洗脸或举爪。双击桌面的「柴宝桌宠」启动。
 
 [安装与显示](docs/INSTALL.md) · [休息姿势](docs/preview/rest.png) · [动作预览](docs/preview/chaibao.gif) · [制作记录](docs/WORKFLOW.md)
 

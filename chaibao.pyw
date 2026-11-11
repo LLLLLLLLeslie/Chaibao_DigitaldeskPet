@@ -1,5 +1,6 @@
 """Windows desktop companion. Only contact with the cat resets its rest timer."""
 import ctypes
+import random
 import time
 import tkinter as tk
 from pathlib import Path
@@ -44,11 +45,21 @@ class Companion:
         atlas = Image.open(ASSETS / "spritesheet.png").convert("RGBA")
         self.frames = {}
         for name, row, count in (("sit", 0, 6), ("right", 1, 4),
-                                 ("left", 2, 4), ("groom", 7, 6)):
+                                 ("left", 2, 4), ("wave", 3, 4), ("groom", 7, 6)):
             self.frames[name] = [photo(atlas.crop((192*i, 208*row, 192*(i+1), 208*(row+1))))
                                  for i in range(count)]
         for name in ("loaf", "sleep"):
             self.frames[name] = [photo(Image.open(ASSETS / f"{name}.png").convert("RGBA"))]
+        groom = self.frames["groom"]
+        self.reactions = {
+            "lick": [groom[i] for i in (0, 1, 2, 1, 2, 1, 0)],
+            "wash": [groom[i] for i in (0, 1, 2, 3, 4, 3, 4, 5)],
+            "wave": self.frames["wave"] + [self.frames["sit"][0]],
+        }
+        self.reaction = None
+        self.last_reaction = None
+        self.reaction_start = 0.0
+        self.last_contact = float("-inf")
         self.x = max(0, root.winfo_screenwidth() - WIDTH - 24)
         self.y = max(0, root.winfo_screenheight() - HEIGHT - 60)
         self.direction = -1
@@ -68,8 +79,16 @@ class Companion:
         self.root.geometry(f"{WIDTH}x{HEIGHT}+{self.x}+{self.y}")
 
     def touch(self, event):
-        self.touched = time.monotonic()
-        self.canvas.itemconfigure(self.sprite, image=self.frames["sit"][0])
+        now = time.monotonic()
+        was_sitting = activity(now - self.touched) == "sit"
+        new_stroke = now - self.last_contact >= 0.45
+        self.last_contact = self.touched = now
+        if self.reaction is None and new_stroke:
+            if was_sitting:
+                choices = [name for name in self.reactions if name != self.last_reaction]
+                self.reaction = self.last_reaction = random.choice(choices)
+                self.reaction_start = now
+            self.canvas.itemconfigure(self.sprite, image=self.frames["sit"][0])
 
     def press(self, event):
         self.touch(event)
@@ -77,21 +96,32 @@ class Companion:
 
     def release(self, event):
         self.drag_offset = None
-        self.touch(event)
+        self.last_contact = self.touched = time.monotonic()
 
     def drag(self, event):
-        self.touch(event)
+        self.last_contact = self.touched = time.monotonic()
+        self.reaction = None
         if self.drag_offset:
             self.x = max(0, min(event.x_root - self.drag_offset[0], self.root.winfo_screenwidth() - WIDTH))
             self.y = max(0, min(event.y_root - self.drag_offset[1], self.root.winfo_screenheight() - HEIGHT))
             self.place()
 
     def context_menu(self, event):
-        self.touch(event)
+        self.last_contact = self.touched = time.monotonic()
+        self.reaction = None
         self.menu.tk_popup(event.x_root, event.y_root)
 
     def tick(self):
-        elapsed = time.monotonic() - self.touched
+        now = time.monotonic()
+        if self.reaction is not None:
+            frames = self.reactions[self.reaction]
+            index = int((now - self.reaction_start) * 5)
+            if index < len(frames):
+                self.canvas.itemconfigure(self.sprite, image=frames[index])
+                self.root.after(100, self.tick)
+                return
+            self.reaction = None
+        elapsed = now - self.touched
         state = activity(elapsed)
         if state == "walk":
             limit = max(0, self.root.winfo_screenwidth() - WIDTH)
