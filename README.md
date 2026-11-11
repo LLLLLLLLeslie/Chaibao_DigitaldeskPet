@@ -1,8 +1,8 @@
 # Chaibao_DigitaldeskPet
 
-柴宝是按照片制作的 ChatGPT 桌宠，保留了黑色短毛、金色眼睛和略圆的脸颊。Windows 桌面端已安装并确认显示。
+柴宝是按照片制作的 ChatGPT 桌宠，保留了黑色短毛、金色眼睛和略圆的脸颊。Windows 版会在上次碰触后五分钟揣手、十分钟蜷睡，鼠标移过或点击就坐起来。双击桌面的「柴宝桌宠」启动。
 
-[安装与显示](docs/INSTALL.md) · [动画预览](docs/preview/chaibao.gif) · [制作记录](docs/WORKFLOW.md)
+[安装与显示](docs/INSTALL.md) · [休息姿势](docs/preview/rest.png) · [动作预览](docs/preview/chaibao.gif) · [制作记录](docs/WORKFLOW.md)
 
 ## 项目结构
 
@@ -22,3 +22,4 @@ python tools/render_previews.py
 ## 同步到 GitHub
 
 此工作副本已启用提交后推送。新克隆的副本可运行 `git config core.hooksPath .githooks` 启用同一行为。推送失败时，提交保留在本地，可运行 `git push` 重试。
+
